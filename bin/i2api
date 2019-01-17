@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+# ABSTRACT: apictl utility
+package main;
+
+use Carp;
+
+use App::I2::API;
+
+App::I2::API->run();
+
+1;
