@@ -5,7 +5,6 @@ use warnings;
 
 use Carp;
 use base 'Exporter';
-use File::Slurp;
 use JSON::XS;
 use YAML::XS 'LoadFile';
 

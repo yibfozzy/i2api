@@ -39,8 +39,9 @@ sub validate_args ( $self, $opt, $args ) {
       if ( !$opt->{time} && !$opt->{remove} );
     croak 'Comment is missing!'
       if ( !$opt->{comment} && !$opt->{remove} );
-    if ( $opt->{start} && $opt->{start} !~ /^[0-9]{4}-[0-1]{1}[0-9]{1}-[0-3]{1}[0-9]{1}\s[0-1]{1}[0-9]{1}:[0-5]{1}[0-9]{1}:[0-5]{1}[0-9]{1}$/) {
-        croak 'Start time is in incorrect format!'
+    if ( $opt->{start} ) {
+        eval { Time::Piece->strptime( "$opt->{start}", "%Y-%m-%d %H:%M:%S")->epoch };
+        croak 'Start time is in incorrect format!' if $@;
     } 
     return;
 }
