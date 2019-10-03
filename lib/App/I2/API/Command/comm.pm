@@ -13,7 +13,7 @@ use App::I2::API::Misc;
 use JSON::XS;
 
 sub usage_desc {
-    return "$0 comm -a [--host] HOSTNAME -s [--service] SERVICE -c [--comment] COMMENT [--remove]";
+    return "$0 comm -a [--host] HOSTNAME -s [--service] SERVICE -c [--comment] COMMENT [--remove] [--hostonly]";
 }
 
 sub description {
@@ -40,7 +40,9 @@ sub validate_args ( $self, $opt, $args ) {
 
 sub execute ( $self, $opt, $args ) {
     my $new_url = $icinga_url . 'add-comment';
-    my %hash;
+    my %hash = (
+        type    => 'Service',
+    );
     if ( !$opt->{remove} ) {
         $hash{"author"} = $icinga_user;
         $hash{"comment"} = $opt->{comment};
@@ -48,25 +50,7 @@ sub execute ( $self, $opt, $args ) {
     else {
         $new_url = $icinga_url . 'remove-comment';
     }
-    if ( !$opt->{service} ) {
-        my $data;
-        $hash{"filter"} = 'host.name=="' . $opt->{host} . '"';
-        $hash{"type"} = 'Host';
-        $data = encode_json(\%hash);
-        send_query( $new_url, $data, $opt );
-        if ( !$opt->{hostonly} ) {
-            $hash{"type"} = 'Service';
-            $data = encode_json(\%hash);
-            send_query( $new_url, $data, $opt );
-        }
-    }
-    else {
-        for my $service ( split( /,/, $opt->{service} ) ) {
-            $hash{"filter"} = 'service.name=="' . $service . '" && host.name=="' . $opt->{host} . '"';
-            my $data = encode_json(\%hash);
-            send_query( $new_url, $data, $opt );
-        }
-    }
+    build_hash( $new_url, \%hash, $opt );
 }
 
 1;

@@ -62,22 +62,7 @@ sub execute ( $self, $opt, $args ) {
     else {
         $new_url = $icinga_url . 'remove-acknowledgement';
     }
-    if ( !$opt->{service} ) {
-        my $data;
-        $hash{"filter"} = 'host.name=="' . $opt->{host} . '"';
-        $data = encode_json(\%hash);
-        send_query( $new_url, $data, $opt );
-        $hash{"type"} = 'Host';
-        $data = encode_json(\%hash);
-        send_query( $new_url, $data, $opt );
-    }
-    else {
-        for my $service ( split( /,/, $opt->{service} ) ) {
-            $hash{"filter"} = 'service.name=="' . $service . '" && host.name=="' . $opt->{host} . '"';
-            my $data = encode_json(\%hash);
-            send_query( $new_url, $data, $opt );
-        }
-    }
+    build_hash( $new_url, \%hash, $opt );
 }
 
 1;

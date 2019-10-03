@@ -14,7 +14,7 @@ use JSON::XS;
 use Time::Piece;
 
 sub usage_desc {
-    return "$0 down -a [--host] HOSTNAME -s [--service] SERVICE --start YYYY-MM-DD HH:MM:SS -t [--time] TIME -c [--comment] COMMENT [--remove]";
+    return "$0 down -a [--host] HOSTNAME -s [--service] SERVICE --start YYYY-MM-DD HH:MM:SS -t [--time] TIME -c [--comment] COMMENT [--remove] [--hostonly]";
 }
 
 sub description {
@@ -29,6 +29,7 @@ sub opt_spec {
         [ 'time|t=i',    'Amount of time (in minutes)' ],
         [ 'comment|c=s', 'Comment' ],
         [ 'remove',      'Remove downtime' ],
+        [ 'hostonly',    'Schedule downtime only for host' ],
     );
 }
 
@@ -48,7 +49,6 @@ sub validate_args ( $self, $opt, $args ) {
 
 sub execute ( $self, $opt, $args ) {
     my $new_url = $icinga_url . "schedule-downtime";
-    my $data;
     my %hash = (
         type    => 'Service',
     );
@@ -69,22 +69,8 @@ sub execute ( $self, $opt, $args ) {
     }
     else {
         $new_url = $icinga_url . "remove-downtime";
-    };
-    if ( !$opt->{service} ) {
-        $hash{"filter"} = 'host.name=="' . $opt->{host} . '"';
-        $data = encode_json(\%hash);
-        send_query( $new_url, $data, $opt );
-        $hash{"type"} = 'Host';
-        $data = encode_json(\%hash);
-        send_query( $new_url, $data, $opt );
     }
-    else {
-        for my $service ( split( /,/, $opt->{service} ) ) {
-            $hash{"filter"} = 'service.name=="' . $service . '" && host.name=="' . $opt->{host} . '"';
-            $data = encode_json(\%hash);
-            send_query( $new_url, $data, $opt );
-        }
-    }
+    build_hash( $new_url, \%hash, $opt );
 }
 
 1;

@@ -11,7 +11,8 @@ use YAML::XS 'LoadFile';
 require LWP::UserAgent;
 
 our @EXPORT = qw(
-  $icinga_url $icinga_user send_query
+  $icinga_url $icinga_user 
+  build_hash send_query
 );
 
 my $config = "$ENV{HOME}/.icinga";
@@ -26,8 +27,26 @@ $conf->{server}->{port} = 5665 if !$conf->{server}->{port};
 our $icinga_url = 'https://' . $conf->{user}->{username} . ':' . $conf->{user}->{password} . '@' . $conf->{server}->{url} . ':' . $conf->{server}->{port} . '/v1/actions/';
 our $icinga_user = $conf->{user}->{username};
 
+sub build_hash {
+    my ( $url, $hash, $opt ) = @_;
+    if ( !$opt->{service} ) {
+        $hash->{filter} = 'host.name=="' . $opt->{host} . '"';
+        if ( !$opt->{hostonly} ) {
+            send_query( $url, encode_json(\%$hash) );
+        }
+        $hash->{type} = 'Host';
+        send_query( $url, encode_json(\%$hash) );
+    }
+    else {
+        for my $service ( split( /,/, $opt->{service} ) ) {
+            $hash->{filter} = 'service.name=="' . $service . '" && host.name=="' . $opt->{host} . '"';
+            send_query( $url, encode_json(\%$hash) );
+        }
+    }
+}
+
 sub send_query {
-    my ( $url, $data, $opt ) = @_;
+    my ( $url, $data ) = @_;
     my $ua = LWP::UserAgent->new();
     my $array;
     my $response = $ua->post(
