@@ -40,7 +40,11 @@ sub build_hash {
     else {
         for my $service ( split( /,/, $opt->{service} ) ) {
             $hash->{filter} = 'service.name=="' . $service . '" && host.name=="' . $opt->{host} . '"';
-            send_query( $url, encode_json(\%$hash) );
+            eval { send_query( $url, encode_json(\%$hash) ) };
+            if ($@) {
+                print "Cannot do requested action with service \'$service\': $@";
+                next;
+            }
         }
     }
 }

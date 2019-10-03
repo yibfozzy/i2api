@@ -14,7 +14,7 @@ use JSON::XS;
 use Time::Piece;
 
 sub usage_desc {
-    return "$0 ack -a [--host] HOSTNAME -s [--service] SERVICE -t [--time] TIME -c [--comment] COMMENT [--remove] [--notify]";
+    return "$0 ack -a [--host] HOSTNAME -s [--service] SERVICE -t [--time] TIME -c [--comment] COMMENT [--remove] [--notify] [--persistent] [--sticky] [--hostonly]";
 }
 
 sub description {
@@ -31,6 +31,7 @@ sub opt_spec {
         [ 'notify',      'Send notification' ],
         [ 'sticky',      'Set ack until host/service is fully recovered' ],
         [ 'persistent',  'Leave comment after the host recovers' ],
+        [ 'hostonly',    'Set ack only for host' ],
     );
 }
 
