@@ -1,6 +1,6 @@
-# ABSTRACT: acknowledge problem for a host/service
+# ABSTRACT: leave comment for a host/service
 
-package App::I2::API::Command::ack;
+package App::I2::API::Command::comm;
 
 use strict;
 use warnings;
@@ -11,25 +11,21 @@ use Carp;
 use App::I2::API -command;
 use App::I2::API::Misc;
 use JSON::XS;
-use Time::Piece;
 
 sub usage_desc {
-    return "$0 ack -a [--host] HOSTNAME -s [--service] SERVICE -t [--time] TIME -c [--comment] COMMENT [--remove] [--notify]";
+    return "$0 comm -a [--host] HOSTNAME -s [--service] SERVICE -c [--comment] COMMENT [--remove]";
 }
 
 sub description {
-    return "Acknowledge problem via Icinga2 API";
+    return "Leave a comment via Icinga2 API";
 }
 
 sub opt_spec {
     return (
         [ 'host|a=s',    'Server hostname' ],
         [ 'service|s=s', 'List of services' ],
-        [ 'time|t=i',    'Amount of time (in minutes)' ],
         [ 'comment|c=s', 'Comment' ],
-        [ 'remove',      'Remove acknowledgement' ],
-        [ 'notify',      'Send notification' ],
-        [ 'sticky',      'Set ack until host/service is fully recovered' ],
+        [ 'remove',      'Remove comment' ],
     );
 }
 
@@ -42,23 +38,16 @@ sub validate_args ( $self, $opt, $args ) {
 }
 
 sub execute ( $self, $opt, $args ) {
-    my $new_url = $icinga_url . 'acknowledge-problem';
+    my $new_url = $icinga_url . 'add-comment';
     my %hash = (
         type    => 'Service',
     );
-    $hash{"notify"} = '1' if $opt->{notify};
-    $hash{"sticky"} = '1' if $opt->{sticky};
     if ( !$opt->{remove} ) {
         $hash{"author"} = $icinga_user;
         $hash{"comment"} = $opt->{comment};
-        if ( $opt->{time} ) {
-            my $cur_time = localtime(time)->epoch;
-            my $end_time = $opt->{time} * 60 + $cur_time;
-            $hash{"expiry"} = $end_time;
-        }
     }
     else {
-        $new_url = $icinga_url . 'remove-acknowledgement';
+        $new_url = $icinga_url . 'remove-comment';
     }
     if ( !$opt->{service} ) {
         my $data;
