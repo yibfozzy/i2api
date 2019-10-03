@@ -30,6 +30,7 @@ sub opt_spec {
         [ 'remove',      'Remove acknowledgement' ],
         [ 'notify',      'Send notification' ],
         [ 'sticky',      'Set ack until host/service is fully recovered' ],
+        [ 'persistent',  'Leave comment after the host recovers' ],
     );
 }
 
@@ -48,6 +49,7 @@ sub execute ( $self, $opt, $args ) {
     );
     $hash{"notify"} = '1' if $opt->{notify};
     $hash{"sticky"} = '1' if $opt->{sticky};
+    $hash{"persistent"} = '1' if $opt->{persistent};
     if ( !$opt->{remove} ) {
         $hash{"author"} = $icinga_user;
         $hash{"comment"} = $opt->{comment};
