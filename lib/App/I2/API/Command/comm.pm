@@ -26,6 +26,7 @@ sub opt_spec {
         [ 'service|s=s', 'List of services' ],
         [ 'comment|c=s', 'Comment' ],
         [ 'remove',      'Remove comment' ],
+        [ 'hostonly',    'Leave comment only for host' ],
     );
 }
 
@@ -39,9 +40,7 @@ sub validate_args ( $self, $opt, $args ) {
 
 sub execute ( $self, $opt, $args ) {
     my $new_url = $icinga_url . 'add-comment';
-    my %hash = (
-        type    => 'Service',
-    );
+    my %hash;
     if ( !$opt->{remove} ) {
         $hash{"author"} = $icinga_user;
         $hash{"comment"} = $opt->{comment};
@@ -52,11 +51,14 @@ sub execute ( $self, $opt, $args ) {
     if ( !$opt->{service} ) {
         my $data;
         $hash{"filter"} = 'host.name=="' . $opt->{host} . '"';
-        $data = encode_json(\%hash);
-        send_query( $new_url, $data, $opt );
         $hash{"type"} = 'Host';
         $data = encode_json(\%hash);
         send_query( $new_url, $data, $opt );
+        if ( !$opt->{hostonly} ) {
+            $hash{"type"} = 'Service';
+            $data = encode_json(\%hash);
+            send_query( $new_url, $data, $opt );
+        }
     }
     else {
         for my $service ( split( /,/, $opt->{service} ) ) {

@@ -5,6 +5,7 @@ Current features:
 
 - schedule/remove downtime
 - add/remove acknowledgements
+- add/remove comments
 
 ## Config
 
@@ -31,7 +32,9 @@ Available commands:
       help: display a command's help screen
 
        ack: acknowledge problem for a host/service
+      comm: leave comment for a host/service
       down: schedule a downtime for a host/service
+
 ```
 
 Example for scheduling downtime for a custom service:
@@ -54,20 +57,18 @@ Successfully acknowledged problem for object 'yourhost.com!disk /'.
 ```
 
 You can also send a notification of your acknowledgement with --notify option. The --time and --remove option work as well as in i2api down.
-The service won't be acknowledged if it has 'OK' status.
+The service won't be acknowledged if it has 'OK' status. You can also leave sticky ack (it does not expire until host is fully recovered) or persistent comment - it is left when ack is expired/removed.
 
 ## Installation
 
-This repository has already builded .tar.gz module that can be installed with:
+This repository has module already builded in '.tar.gz' archive that can be installed with:
 
 ```text
-sudo cpanm App-I2-API-0.001.tar.gz
+sudo cpanm App-I2-API-0.00*.tar.gz
 ```
-
-or by making this archive with Dist::Zilla module and installing it with cpanm as well.
 
 ## Issues
 
-Please report any bugs or feture requests to:
+Please report any bugs or feature requests to:
 
 https://github.com/yibfozzy/i2api/issues
